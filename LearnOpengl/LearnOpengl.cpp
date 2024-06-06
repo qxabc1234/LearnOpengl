@@ -25,12 +25,12 @@ float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 
 // camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 1.0f, 3.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 1.0f, 6.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(0.0f, 1.0f, 6.0f);
 
 int main()
 {
@@ -73,7 +73,7 @@ int main()
 
     Model ourModel("assets/backpack/backpack.obj");
 
-    glm::mat4 projection = glm::perspective(-55.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 
@@ -98,10 +98,10 @@ int main()
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.8f, 0.8f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        model = glm::rotate(model, glm::radians(-roll), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = model * glm::rotate(model, glm::radians(-pitch), glm::vec3(0.0f, 1.0f, 0.0f));
+        //model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f)); // translate it down so it's at the center of the scene
+        //model = glm::scale(model, glm::vec3(0.8f, 0.8f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::rotate(model, glm::radians(roll), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = model * glm::rotate(model, glm::radians(pitch), glm::vec3(0.0f, 1.0f, 0.0f));
         ourShader.setMat4("model", model);
         ourModel.Draw(ourShader);
     
