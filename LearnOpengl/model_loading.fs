@@ -34,7 +34,6 @@ void main()
     // specular
     float specularStrength = 0.5;
     vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
     vec3 specular = specularStrength * spec * lightColor * vec3(texture(texture_specular1, fs_in.TexCoords));
