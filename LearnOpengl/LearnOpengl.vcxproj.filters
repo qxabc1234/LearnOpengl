@@ -41,6 +41,18 @@
     <None Include="light_cube.fs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="shadow_mapping_depth.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shadow_mapping_depth.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="debug_quad.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="debug_quad.fs">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h">
