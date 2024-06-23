@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\vs\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\vs\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\vs\Include;D:\qiushou\LearnOpengl\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\qiushou\LearnOpengl\Libs;D:\vs\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\vs\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\vs\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\vs\Include;D:\qiushou\LearnOpengl\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\qiushou\LearnOpengl\Libs;D:\vs\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
