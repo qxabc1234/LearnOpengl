@@ -80,8 +80,8 @@ int main()
     unsigned int FBO;
     glGenFramebuffers(1, &FBO);
 
-    const unsigned int SHADOW_WIDTH = 1024;
-    const unsigned int SHADOW_HEIGHT = 1024;
+    const unsigned int SHADOW_WIDTH = 2048;
+    const unsigned int SHADOW_HEIGHT = 2048;
     unsigned int shadowMap;
     glGenTextures(1, &shadowMap);
     glBindTexture(GL_TEXTURE_2D, shadowMap);
@@ -107,7 +107,7 @@ int main()
     glm::mat4 lightProjection, lightView;
     glm::mat4 lightSpaceMatrix;
     float near_plane = -15.0f, far_plane = 15.0f;
-    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    lightProjection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, near_plane, far_plane);
     lightView = glm::lookAt(lightDir, glm::vec3(0.0, 0.0, 0.0), glm::vec3(-1.0, 1.0, -1.0));
     lightSpaceMatrix = lightProjection * lightView;
 
