@@ -53,6 +53,24 @@
     <None Include="debug_quad.fs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="ssao.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao_geometry.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao_geometry.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao_blur.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao_lighting.fs">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h">
