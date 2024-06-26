@@ -18,6 +18,8 @@ uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_normal1;
 uniform sampler2D texture_specular1;
 uniform sampler2D shadowMap;
+uniform sampler2D ssao;
+
 
 float ShadowCalculation(vec4 fragPosLightSpace, float bias)
 {
@@ -44,7 +46,8 @@ void main()
 {        
     // ambient
     float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor * vec3(texture(texture_diffuse1, fs_in.TexCoords));
+    float AmbientOcclusion = texture(ssao, fs_in.TexCoords).r;
+    vec3 ambient = vec3(0.3 * AmbientOcclusion) * vec3(texture(texture_diffuse1, fs_in.TexCoords)); // <-- this is where we use ambient occlusion
   	
     // diffuse 
     vec3 normal = texture(texture_normal1, fs_in.TexCoords).rgb;
