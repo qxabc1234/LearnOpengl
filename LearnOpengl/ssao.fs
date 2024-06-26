@@ -1,12 +1,9 @@
 #version 330 core
 out float FragColor;
 in vec2 TexCoords;
-in vec3 ViewNormal;
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_normal1;
-uniform sampler2D texture_specular1;
 uniform sampler2D gPositionDepth;
+uniform sampler2D gNormal;
 uniform sampler2D texNoise;
 
 uniform vec3 samples[64];
@@ -24,16 +21,13 @@ void main()
 {
     // Get input for SSAO algorithm
     vec3 fragPos = texture(gPositionDepth, TexCoords).xyz;
-    //tangent normal
-    vec3 tangentnormal = texture(texture_normal1, TexCoords).rgb;
-    tangentnormal = normalize(tangentnormal * 2.0 - 1.0); 
-    //view normal
-
+    vec3 normal = texture(gNormal, TexCoords).rgb;
+    normal = normal * 2 - 1;
     vec3 randomVec = texture(texNoise, TexCoords * noiseScale).xyz;
     // Create TBN change-of-basis matrix: from tangent-space to view-space
-    vec3 tangent = normalize(randomVec - ViewNormal * dot(randomVec, ViewNormal));
-    vec3 bitangent = cross(ViewNormal, tangent);
-    mat3 TBN = mat3(tangent, bitangent, ViewNormal);
+    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+    vec3 bitangent = cross(normal, tangent);
+    mat3 TBN = mat3(tangent, bitangent, normal);
     // Iterate over the sample kernel and calculate occlusion factor
     float occlusion = 0.0;
     for(int i = 0; i < kernelSize; ++i)
