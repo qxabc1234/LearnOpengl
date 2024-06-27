@@ -84,6 +84,8 @@ int main()
     Shader shaderGeometryPass("ssao_geometry.vs", "ssao_geometry.fs");
     Shader shaderSSAO("ssao.vs", "ssao.fs");
     Shader shaderSSAOBlur("ssao.vs", "ssao_blur.fs");
+    Shader shaderLightingPass("ssao.vs", "ssao_lighting.fs");
+
 
 
     Model ourModel("assets/backpack/backpack.obj");
@@ -114,7 +116,7 @@ int main()
     GLuint gBuffer;
     glGenFramebuffers(1, &gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-    GLuint gPositionDepth, gNormal;
+    GLuint gPositionDepth, gNormal, gAlbedoSpec;
     // - Position + linear depth color buffer
     glGenTextures(1, &gPositionDepth);
     glBindTexture(GL_TEXTURE_2D, gPositionDepth);
@@ -127,12 +129,20 @@ int main()
     // - Normal color buffer
     glGenTextures(1, &gNormal);
     glBindTexture(GL_TEXTURE_2D, gNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
-    GLuint attachments[2] = { GL_COLOR_ATTACHMENT0 , GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers(2, attachments);
+    // - Color + Specular color buffer
+    glGenTextures(1, &gAlbedoSpec);
+    glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+    // - Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+    GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
 
     // - Create and attach depth buffer (renderbuffer)
     GLuint rboDepth;
@@ -208,12 +218,23 @@ int main()
     ourShader.setInt("shadowMap", 3);
     ourShader.setInt("ssao", 4);
 
+    shaderGeometryPass.use();
+    shaderGeometryPass.setInt("shadowMap", 3);
 
     // Set samplers
     shaderSSAO.use();
     shaderSSAO.setInt("gPositionDepth", 0);
     shaderSSAO.setInt("gNormal", 1);
     shaderSSAO.setInt("texNoise", 2);
+
+
+    // Set samplers
+    shaderLightingPass.use();
+    shaderLightingPass.setInt("gPositionDepth", 0);
+    shaderLightingPass.setInt("gNormal", 1);
+    shaderLightingPass.setInt("gAlbedoSpec", 2);
+    shaderLightingPass.setInt("ssao", 3);
+
 
     glm::mat4 projection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -252,12 +273,14 @@ int main()
         //  Geometry Pass: render scene's geometry/color data into gbuffer
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
         shaderGeometryPass.use();
         shaderGeometryPass.setMat4("projection", projection);
         shaderGeometryPass.setMat4("view", view);
         shaderGeometryPass.setMat4("model", model);
+        shaderGeometryPass.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, shadowMap);
         ourModel.Draw(shaderGeometryPass);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -289,26 +312,42 @@ int main()
         //RenderQuad();
         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        //draw backpack
+        //glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //ourShader.use();
+
+        //// view/projection transformations
+        //ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        //ourShader.setVec3("lightDir", normalize(lightDir));
+        //ourShader.setVec3("viewPos", cameraPos);
+        //ourShader.setMat4("projection", projection);
+        //ourShader.setMat4("view", view);
+        //ourShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        //ourShader.setMat4("model", model);
+        //// render the loaded model
+        //glActiveTexture(GL_TEXTURE3);
+        //glBindTexture(GL_TEXTURE_2D, shadowMap);
+        //glActiveTexture(GL_TEXTURE4);
+        //glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+        //ourModel.Draw(ourShader);
+    
         //light pass
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        ourShader.use();
-
-        // view/projection transformations
-        ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        ourShader.setVec3("lightDir", normalize(lightDir));
-        ourShader.setVec3("viewPos", cameraPos);
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-        ourShader.setMat4("model", model);
-        // render the loaded model
+        shaderLightingPass.use();
+        lightDir = glm::vec3(view * glm::vec4(lightDir, 0.0));
+        shaderLightingPass.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        shaderLightingPass.setVec3("lightDir", normalize(lightDir));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, gPositionDepth);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, gNormal);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, shadowMap);
-        glActiveTexture(GL_TEXTURE4);
         glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
-        ourModel.Draw(ourShader);
-    
+        RenderQuad();
         
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
